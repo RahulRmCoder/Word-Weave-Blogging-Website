@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/logo1.png" type="image/x-icon">
+    <title>Sign Up for Word Weave</title>
+    <link rel="stylesheet" href="/styles/auth.css">
+    <style>
+        body {
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 0;
+        }
+        
+        .navbar {
+            position: relative;
+            width: 100%;
+            margin-bottom: 50px;
+        }
+        
+        .page-content {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .navbar-brand img {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body style="background: url('/images/login1.jpg') no-repeat center center fixed; background-size: cover;">
+    <div class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <img src="/images/logo1.png" height="50px" width="50px" alt="Word Weave Logo">
+                <span>Word Weave</span>
+            </div>
+            <div class="navbar-links">
+                <a href="/login" class="navbar-link active">Sign Up</a>
+                <a href="/about" class="navbar-link">About</a>
+                <a href="/contact" class="navbar-link">Contact Us</a>
+            </div>
+        </div>
+    </div>
+    <div class="auth-container">
+        <h1>Sign Up</h1>
+        <form action="/auth/signup" method="POST">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <a href="/auth/google" class="google-btn">Sign Up with Google</a>
+
+        <p>Already have an account? <a href="/login">Login</a></p>
+    </div>
+    <script src="/scripts/signup.js"></script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Weave</title>
+  <link rel="shortcut icon" href="images/logo1.png" type="image/x-icon">
+  <link rel="stylesheet" href="/styles/main.css">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <img src="/images/logo1.png" height="50px" width="50px" alt="Word Weave Logo">
+      <a href="/home" class="logo" style="padding-right: 990px;">Word Weave</a>
+      <ul class="nav-links">
+        <li><a href="/home" class="navbar-link active">Home</a></li>
+        <li><a href="/profile">Profile</a></li>
+        <li><a href="#" id="logoutBtn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>My Blog</h1>
+    <a id="newPostBtn" href="/new">New Post</a>
+    
+    <!-- Debug Info -->
+    <div style="background-color: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 5px;">
+      <p>Total posts: <%= posts.length %></p>
+    </div>
+
+    <ul id="postsList">
+      <% if (posts && posts.length > 0) { %>
+        <% posts.forEach(post => { %>
+          <li class="post" data-post-id="<%= post.id %>">
+            <h2><%= post.title %></h2>
+            <small><%= new Date(post.created_at).toLocaleDateString() %></small>
+            
+            <!-- Content with read more feature -->
+            <div class="post-content">
+              <% if (post.content.length > 300) { %>
+                <p class="post-text truncated"><%= post.content.substring(0, 300) %>... <button class="read-more-btn">Read More</button></p>
+                <p class="post-text full-content" style="display: none;"><%= post.content %> <button class="read-less-btn">Read Less</button></p>
+              <% } else { %>
+                <p class="post-text"><%= post.content %></p>
+              <% } %>
+            </div>
+            
+            <small>By: <%= post.author %></small>
+            <span class="category">Category: <%= post.category %></span>
+
+            <!-- Like section -->
+            <div class="like-section">
+              <% 
+                let userHasLiked = false;
+                let likeData = {
+                  count: post.likes || 0,
+                  users: []
+                };
+                
+                // Check if post has post_likes property (will be added from backend)
+                if (post.post_likes && post.post_likes.length) {
+                  likeData.users = post.post_likes.map(like => like.user_name);
+                  userHasLiked = post.post_likes.some(like => like.user_id === user.id);
+                }
+              %>
+              
+              <button class="like-btn <%= userHasLiked ? 'liked' : '' %>" data-post-id="<%= post.id %>">
+                <span class="like-icon"><%= userHasLiked ? '❤️' : '🤍' %></span>
+                <span class="like-count"><%= likeData.count %></span>
+                <%= userHasLiked ? 'Liked' : 'Like' %>
+              </button>
+              
+              <div class="like-details">
+                <% if (likeData.count > 0) { %>
+                  <span class="liked-by">
+                    <% if (likeData.users.length > 0) { %>
+                      Liked by <%= likeData.users[0] %><%= likeData.users.length > 1 ? ` and ${likeData.users.length - 1} others` : '' %>
+                    <% } else { %>
+                      <%= likeData.count %> <%= likeData.count === 1 ? 'like' : 'likes' %>
+                    <% } %>
+                  </span>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Comments section -->
+            <div class="comment-section">
+              <h3>Comments</h3>
+              
+              <!-- Comment form -->
+              <div class="comment-form">
+                <input type="text" class="comment-input" placeholder="Add a comment...">
+                <button class="comment-btn" data-post-id="<%= post.id %>">Comment</button>
+              </div>
+              
+              <!-- Comments list -->
+              <ul class="comments-list">
+                <% 
+                  let comments = post.comments || [];
+                  let displayComments = comments.slice(0, 1); // Display only the first comment initially
+                  let remainingComments = comments.length - 1;
+                %>
+                
+                <% if (displayComments.length > 0) { %>
+                  <% displayComments.forEach(comment => { %>
+                    <li class="comment-item">
+                      <div class="comment-header">
+                        <strong><%= comment.user %></strong>
+                        <small><%= new Date(comment.created_at).toLocaleString() %></small>
+                      </div>
+                      <div class="comment-text"><%= comment.text %></div>
+                    </li>
+                  <% }); %>
+                <% } %>
+              </ul>
+              
+              <!-- Show more comments button -->
+              <% if (remainingComments > 0) { %>
+                <button class="show-more-comments" data-post-id="<%= post.id %>">
+                  Show <%= remainingComments %> more <%= remainingComments === 1 ? 'comment' : 'comments' %>
+                </button>
+              <% } %>
+            </div>
+
+            <!-- Edit & Delete (Only for Author) -->
+            <% if (user && user.id === post.authorId) { %>
+              <div class="post-actions">
+                <a class="edit" href="/edit/<%= post.id %>">Edit</a>
+                <button class="delete-btn" data-id="<%= post.id %>">Delete</button>
+              </div>
+            <% } %>
+          </li>
+        <% }); %>
+      <% } else { %>
+        <li class="no-posts">No posts found. Try creating your first post!</li>
+      <% } %>
+    </ul>
+  </div>
+
+  <!-- Likes modal -->
+  <div id="likesModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3>People who liked this post</h3>
+      <ul id="likesList"></ul>
+    </div>
+  </div>
+  <div class="overlay" id="overlay"></div>
+<div class="custom-alert" id="logoutAlert" style="display: none;">
+  <h3>Confirm Logout</h3>
+  <p>Are you sure you want to logout from Word Weave?</p>
+  <div class="alert-buttons">
+    <button class="cancel-btn" id="cancelLogout">Cancel</button>
+    <button class="confirm-btn" id="confirmLogout">Logout</button>
+  </div>
+</div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners to all delete buttons
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const postId = this.getAttribute('data-id');
+          if (confirm('Are you sure you want to delete this post?')) {
+            deletePost(postId);
+          }
+        });
+      });
+
+      // Read more/less functionality
+      document.querySelectorAll('.read-more-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const postContent = this.closest('.post-content');
+          postContent.querySelector('.truncated').style.display = 'none';
+          postContent.querySelector('.full-content').style.display = 'block';
+        });
+      });
+
+      document.querySelectorAll('.read-less-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const postContent = this.closest('.post-content');
+          postContent.querySelector('.truncated').style.display = 'block';
+          postContent.querySelector('.full-content').style.display = 'none';
+        });
+      });
+
+      // Like functionality
+      document.querySelectorAll('.like-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const postId = this.getAttribute('data-post-id');
+          toggleLike(postId, this);
+        });
+      });
+
+      // Comment functionality
+      document.querySelectorAll('.comment-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const postId = this.getAttribute('data-post-id');
+          const commentInput = this.closest('.comment-form').querySelector('.comment-input');
+          const commentText = commentInput.value.trim();
+          
+          if (commentText) {
+            addComment(postId, commentText, commentInput);
+          }
+        });
+      });
+
+      // Show more comments functionality
+      document.querySelectorAll('.show-more-comments').forEach(button => {
+        button.addEventListener('click', function() {
+          const postId = this.getAttribute('data-post-id');
+          loadMoreComments(postId, this);
+        });
+      });
+
+      // Like details click handler
+      document.querySelectorAll('.like-details').forEach(element => {
+        element.addEventListener('click', function() {
+          const postId = this.closest('.post').getAttribute('data-post-id');
+          showLikesModal(postId);
+        });
+      });
+
+      // Close modal
+      document.querySelector('.close-modal').addEventListener('click', function() {
+        document.getElementById('likesModal').style.display = 'none';
+      });
+
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        const modal = document.getElementById('likesModal');
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  
+    // Function to delete a post
+    function deletePost(postId) {
+      fetch(`/api/posts/delete/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Remove the post from the DOM
+          const postElement = document.querySelector(`.post button[data-id="${postId}"]`).closest('.post');
+          postElement.remove();
+          alert('Post deleted successfully');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the post');
+      });
+    }
+
+    // Function to toggle like
+    function toggleLike(postId, likeButton) {
+      fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Update like button
+          const likeIcon = likeButton.querySelector('.like-icon');
+          const likeCount = likeButton.querySelector('.like-count');
+          
+          if (data.liked) {
+            likeButton.classList.add('liked');
+            likeIcon.textContent = '❤️';
+            likeButton.textContent = '';
+            likeButton.appendChild(likeIcon);
+            likeCount.textContent = data.likes;
+            likeButton.appendChild(likeCount);
+            likeButton.appendChild(document.createTextNode(' Liked'));
+          } else {
+            likeButton.classList.remove('liked');
+            likeIcon.textContent = '🤍';
+            likeButton.textContent = '';
+            likeButton.appendChild(likeIcon);
+            likeCount.textContent = data.likes;
+            likeButton.appendChild(likeCount);
+            likeButton.appendChild(document.createTextNode(' Like'));
+          }
+          
+          // Update like details text
+          const likeDetails = likeButton.closest('.like-section').querySelector('.like-details');
+          if (data.likes > 0) {
+            let likedByText;
+            if (data.recentLiker) {
+              likedByText = `Liked by ${data.recentLiker}${data.likes > 1 ? ` and ${data.likes - 1} others` : ''}`;
+            } else {
+              likedByText = `${data.likes} ${data.likes === 1 ? 'like' : 'likes'}`;
+            }
+            likeDetails.innerHTML = `<span class="liked-by">${likedByText}</span>`;
+          } else {
+            likeDetails.innerHTML = '';
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing your like');
+      });
+    }
+
+    // Function to add a comment
+    function addComment(postId, commentText, commentInput) {
+      fetch(`/api/posts/${postId}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: commentText })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Clear input
+          commentInput.value = '';
+          
+          // Add new comment to UI
+          const commentsList = commentInput.closest('.comment-section').querySelector('.comments-list');
+          
+          // If no comments are displayed yet, clear "no comments" message
+          if (commentsList.innerHTML.includes('No comments yet')) {
+            commentsList.innerHTML = '';
+          }
+          
+          // Create and append new comment
+          const commentItem = document.createElement('li');
+          commentItem.className = 'comment-item';
+          commentItem.innerHTML = `
+            <div class="comment-header">
+              <strong>${data.user}</strong>
+              <small>Just now</small>
+            </div>
+            <div class="comment-text">${data.text}</div>
+          `;
+          
+          // Add to beginning of list
+          commentsList.insertBefore(commentItem, commentsList.firstChild);
+          
+          // Update show more button if needed
+          const showMoreBtn = commentInput.closest('.comment-section').querySelector('.show-more-comments');
+          if (!showMoreBtn && data.totalComments > 1) {
+            const showMoreBtn = document.createElement('button');
+            showMoreBtn.className = 'show-more-comments';
+            showMoreBtn.setAttribute('data-post-id', postId);
+            showMoreBtn.textContent = `Show ${data.totalComments - 1} more comments`;
+            showMoreBtn.addEventListener('click', function() {
+              loadMoreComments(postId, showMoreBtn);
+            });
+            commentInput.closest('.comment-section').appendChild(showMoreBtn);
+          } else if (showMoreBtn) {
+            const count = parseInt(showMoreBtn.textContent.match(/\d+/)[0]) + 1;
+            showMoreBtn.textContent = `Show ${count} more ${count === 1 ? 'comment' : 'comments'}`;
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding your comment');
+      });
+    }
+
+    // Function to load more comments
+    function loadMoreComments(postId, button) {
+      fetch(`/api/posts/${postId}/comments`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Get comments list element
+          const commentsList = button.closest('.comment-section').querySelector('.comments-list');
+          
+          // Clear existing comments
+          commentsList.innerHTML = '';
+          
+          // Add all comments
+          data.comments.forEach(comment => {
+            const commentItem = document.createElement('li');
+            commentItem.className = 'comment-item';
+            commentItem.innerHTML = `
+              <div class="comment-header">
+                <strong>${comment.user}</strong>
+                <small>${new Date(comment.created_at).toLocaleString()}</small>
+              </div>
+              <div class="comment-text">${comment.text}</div>
+            `;
+            commentsList.appendChild(commentItem);
+          });
+          
+          // Hide "show more" button
+          button.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while loading comments');
+      });
+    }
+
+    // Function to show likes modal
+    function showLikesModal(postId) {
+      fetch(`/api/posts/${postId}/likes`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          // Populate modal with likes
+          const likesList = document.getElementById('likesList');
+          likesList.innerHTML = '';
+          
+          if (data.likes.length > 0) {
+            data.likes.forEach(like => {
+              const likeItem = document.createElement('li');
+              likeItem.className = 'like-item';
+              likeItem.textContent = like.user_name;
+              likesList.appendChild(likeItem);
+            });
+          } else {
+            const noLikes = document.createElement('li');
+            noLikes.textContent = 'No likes yet';
+            likesList.appendChild(noLikes);
+          }
+          
+          // Show modal
+          document.getElementById('likesModal').style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while fetching likes');
+      });
+    }
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Show custom alert
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('logoutAlert').style.display = 'block';
+  });
+  
+  // Cancel logout
+  document.getElementById('cancelLogout').addEventListener('click', function() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('logoutAlert').style.display = 'none';
+  });
+  
+  // Confirm logout
+  document.getElementById('confirmLogout').addEventListener('click', function() {
+    window.location.href = '/logout';
+  });
+  
+  // Close dialog when clicking overlay
+  document.getElementById('overlay').addEventListener('click', function() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('logoutAlert').style.display = 'none';
+  });
+  </script>
+</body>
+
+</html>

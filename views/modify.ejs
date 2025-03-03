@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/images/logo1.png" type="image/x-icon">
+  <title>Create Blog</title>
+  <link rel="stylesheet" href="/styles/modify.css">
+  <link rel="stylesheet" href="/styles/chatbot.css">
+  <style>
+    /* Reset body styles to match screenshot */
+    body {
+      display: block;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    
+    /* Header styling to match screenshot exactly */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #000;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      box-sizing: border-box;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-section img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+    
+    .logo-text {
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 40px;
+    }
+    
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    
+    .nav-links a:hover {
+      color: #ffcc00;
+    }
+    
+    /* Main content container */
+    .main-container {
+      margin-top: 60px;
+      padding: 20px;
+      max-width: 800px;
+      margin-left: 350px;
+    }
+    
+    /* Post form styling */
+    .post-container {
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    
+    .post-heading {
+      color: #ffcc00;
+      font-size: 24px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ffcc00;
+      padding-bottom: 10px;
+    }
+    
+    /* Form input styling to match screenshot */
+    input[type="text"], 
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background-color: #1a1a1a;
+      border: 1px solid #ffcc00;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+    }
+    
+    button.submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #ffcc00;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    button.submit-btn:hover {
+      background-color: #e6b800;
+    }
+    
+    /* Custom alert styling */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1001;
+      display: none;
+    }
+    
+    .custom-alert {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #111;
+      padding: 25px;
+      border-radius: 8px;
+      z-index: 1002;
+      width: 350px;
+      max-width: 90%;
+      border: 1px solid #333;
+      display: none;
+    }
+    
+    .custom-alert h3 {
+      color: #ffcc00;
+      margin-bottom: 15px;
+    }
+    
+    .alert-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .confirm-btn, .cancel-btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .confirm-btn {
+      background-color: #d32f2f;
+      color: white;
+    }
+    
+    .cancel-btn {
+      background-color: #333;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header exactly matching screenshot -->
+  <header>
+    <div class="logo-section">
+      <img src="/images/logo1.png" alt="Word Weave Logo">
+      <span class="logo-text">Word Weave</span>
+    </div>
+    <div class="nav-links">
+      <a href="/home">Home</a>
+      <a href="/profile">Profile</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <div class="main-container">
+    <div class="post-container">
+      <h1 class="post-heading">New Post</h1>
+      
+      <% if (locals.post) { %>
+        <form id="editForm" method="post" action="/api/posts/<%= post.id %>">
+          <input type="text" name="title" value="<%= post.title %>" placeholder="Title" required>
+          <textarea name="content" rows="10" placeholder="Content" required><%= post.content %></textarea>
+          <input type="text" name="category" value="<%= post.category %>" placeholder="Category" required>
+          <button class="submit-btn" type="submit"><%= submit %></button>
+        </form>
+      <% } else { %>
+        <form id="newPostForm" method="post" action="/api/posts">
+          <input type="text" id="post-title" name="title" placeholder="Title" required>
+          <textarea id="post-content" name="content" placeholder="Content" required rows="10"></textarea>
+          <input type="text" id="post-category" name="category" placeholder="Category" required>
+          <button class="submit-btn" type="submit"><%= submit %></button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Logout confirmation dialog -->
+  <div class="overlay" id="overlay"></div>
+  <div class="custom-alert" id="logoutAlert">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to logout from Word Weave?</p>
+    <div class="alert-buttons">
+      <button class="cancel-btn" id="cancelLogout">Cancel</button>
+      <button class="confirm-btn" id="confirmLogout">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.querySelector("#editForm") || document.querySelector("#newPostForm");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = {
+          title: document.getElementById("post-title")?.value || document.querySelector("[name='title']").value,
+          content: document.getElementById("post-content")?.value || document.querySelector("[name='content']").value,
+          category: document.getElementById("post-category")?.value || document.querySelector("[name='category']").value
+        };
+        try {
+          const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+          });
+          const data = await response.json();
+          if (data.status === "success") {
+            window.location.href = data.redirect;
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred. Please try again.");
+        }
+      });
+
+      // Logout confirmation functionality
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Show custom alert
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('logoutAlert').style.display = 'block';
+      });
+      
+      // Cancel logout
+      document.getElementById('cancelLogout').addEventListener('click', function() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('logoutAlert').style.display = 'none';
+      });
+      
+      // Confirm logout
+      document.getElementById('confirmLogout').addEventListener('click', function() {
+        window.location.href = '/logout';
+      });
+      
+      // Close dialog when clicking overlay
+      document.getElementById('overlay').addEventListener('click', function() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('logoutAlert').style.display = 'none';
+      });
+    });
+  </script>
+  <script src="/scripts/chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+/* auth.css - Styles for login and signup pages */
+
+:root {
+    --primary-color: #4a6eb5;
+    --primary-hover: #3a5a95;
+    --error-color: #e74c3c;
+    --success-color: #2ecc71;
+    --border-color: #e1e1e1;
+    --text-color: #333;
+    --light-text: #777;
+    --bg-color: #f9f9f9;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    
+}
+
+.auth-container {
+    background-color: #ffd900da;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    text-align: center;
+}
+
+.navbar {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-content {
+    width: 80%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar-link {
+    color: #ccc;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.navbar-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-link.active {
+    color: #000;
+    background-color: #f0c808;
+    font-weight: bold;
+}
+
+h1 {
+    margin-bottom: 24px;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+input {
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--primary-color);
+}
+
+input.error {
+    border-color: var(--error-color);
+}
+
+.validation-message {
+    color: var(--error-color);
+    font-size: 12px;
+    text-align: left;
+    margin-top: -8px;
+    display: none;
+}
+
+.validation-message.visible {
+    display: block;
+}
+
+.validation-success {
+    color: var(--success-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: var(--light-text);
+    font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.divider::before {
+    margin-right: 10px;
+}
+
+.divider::after {
+    margin-left: 10px;
+}
+
+.google-btn {
+    display: block;
+    background-color: #4285F4;
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+.google-btn:hover {
+    background-color: #357ae8;
+}
+
+p {
+    color: var(--light-text);
+    font-size: 14px;
+}
+
+p a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    input, button, .google-btn {
+        padding: 10px;
+    }
+}
+.general-error {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 3px solid #e74c3c;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.validation-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.validation-message.visible {
+    display: block;
+}
+
+.validation-message.validation-success {
+    color: #006028;
+}
+
+input.error {
+    border-color: #e74c3c;
+}

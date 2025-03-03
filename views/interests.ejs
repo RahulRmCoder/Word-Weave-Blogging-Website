@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/logo1.png" type="image/x-icon">
+    <title>Select Your Interests - Word Weave</title>
+    <link rel="stylesheet" href="/styles/auth.css">
+    <style>
+        /* Additional styles for the interests page */
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .interest-item {
+            background-color: #f9f9f9;
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            padding: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .interest-item:hover {
+            border-color: #4a6eb5;
+            background-color: #f5f7fa;
+        }
+        
+        .interest-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .interest-item input[type="checkbox"]:checked + span {
+            font-weight: 600;
+            color: #4a6eb5;
+        }
+        
+        .interest-icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        /* Make sure the form doesn't have the default gap from auth.css */
+        form.interests-form {
+            gap: 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .interests-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body style="background: url('/images/interests.jpg') no-repeat center center fixed; background-size: cover;"></body>
+
+    <div class="auth-container">
+        <h1>Select Your Interests</h1>
+        <p style="margin-bottom: 20px;">Choose topics you'd like to see in your feed</p>
+        
+        <form action="/auth/interests" method="POST" class="interests-form">
+            <input type="hidden" name="userId" value="<%= userId %>">
+
+            <div class="interests-grid">
+                <label class="interest-item">
+                    <input type="checkbox" name="interests" value="Technology">
+                    <span class="interest-icon">💻</span>
+                    <span>Technology</span>
+                </label>
+                
+                <label class="interest-item">
+                    <input type="checkbox" name="interests" value="Health">
+                    <span class="interest-icon">🌿</span>
+                    <span>Health</span>
+                </label>
+                
+                <label class="interest-item">
+                    <input type="checkbox" name="interests" value="Science">
+                    <span class="interest-icon">🔬</span>
+                    <span>Science</span>
+                </label>
+                
+                <label class="interest-item">
+                    <input type="checkbox" name="interests" value="Travel">
+                    <span class="interest-icon">✈️</span>
+                    <span>Travel</span>
+                </label>
+                
+                <label class="interest-item">
+                    <input type="checkbox" name="interests" value="Business">
+                    <span class="interest-icon">📈</span>
+                    <span>Business</span>
+                </label>
+                
+                <label class="interest-item">
+                    <input type="checkbox" name="interests" value="Education">
+                    <span class="interest-icon">📚</span>
+                    <span>Education</span>
+                </label>
+            </div>
+
+            <button type="submit">Save & Continue</button>
+        </form>
+        
+        <script src="/scripts/interests.js"></script>
+    </div>
+
+</body>
+</html>

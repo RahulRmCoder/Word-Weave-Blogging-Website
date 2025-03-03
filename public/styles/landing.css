@@ -1,0 +1,66 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.carousel {
+    cursor: pointer; /* Add pointer cursor to indicate clickable area */
+}
+
+.carousel img {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 10; /* Ensure overlay is above carousel */
+}
+
+.overlay h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.overlay p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn {
+    background-color: #e5b403;
+    color: rgb(0, 0, 0);
+    padding: 15px 30px;
+    text-decoration: none;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    transition: 0.3s;
+    cursor: pointer; /* Explicitly set pointer cursor */
+}
+
+.btn:hover {
+    background-color: #FFD700;
+}
+
+/* Improve dots visibility */
+.slick-dots {
+    bottom: 25px;
+}
+
+.slick-dots li button:before {
+    font-size: 12px;
+    color: white;
+    opacity: 0.8;
+}
+
+.slick-dots li.slick-active button:before {
+    color: #ff6600;
+    opacity: 1;
+}

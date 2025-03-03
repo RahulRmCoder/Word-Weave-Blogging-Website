@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | Word Weave</title>
+  <link rel="shortcut icon" href="images/logo1.png" type="image/x-icon">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/profile.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  
+  <!-- Store chart data in data attributes -->
+  <script id="chartData" 
+    data-activity='<%- JSON.stringify(chartsData.activity) %>'
+    data-engagement='<%- JSON.stringify(chartsData.engagement) %>'
+    data-categories='<%- JSON.stringify(chartsData.categories) %>'
+    data-audience='<%- JSON.stringify(chartsData.audience) %>'>
+  </script>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <img src="/images/logo1.png" height="50px" width="50px" alt="Word Weave Logo">
+      <a href="/home" class="logo" style="padding-right: 990px;">Word Weave</a>
+      <ul class="nav-links">
+        <li><a href="/home" class="navbar-link">Home</a></li>
+        <li><a href="/profile" class="navbar-link active">Profile</a></li>
+        <li><a href="#" id="logoutBtn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container profile-container">
+    <div class="profile-header">
+      <div class="profile-header-content">
+        <div class="profile-avatar">
+          <div class="avatar-placeholder">
+            <span><%= user.name.charAt(0).toUpperCase() %></span>
+          </div>
+        </div>
+        <div class="profile-info">
+          <h1><%= user.name %></h1>
+          <p class="profile-joined">Joined: <%= new Date(user.created_at).toLocaleDateString() %></p>
+          <div class="profile-tags">
+            <% if (user.interests) { 
+              const interestsArray = typeof user.interests === 'string' ? user.interests.split(',') : user.interests;
+              interestsArray.forEach(interest => { %>
+                <span class="profile-tag"><%= interest.trim() %></span>
+            <% })} %>
+          </div>
+        </div>
+      </div>
+      <div class="profile-stats">
+        <div class="stat-card">
+          <h3><%= stats.totalPosts %></h3>
+          <p>Posts</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= stats.totalLikes %></h3>
+          <p>Likes</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= stats.totalComments %></h3>
+          <p>Comments</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= stats.engagementRate %>%</h3>
+          <p>Engagement</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Content Activity -->
+      <div class="dashboard-card wide-card">
+        <h2>Posting Activity</h2>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Engagement Metrics -->
+      <div class="dashboard-card">
+        <h2>Engagement</h2>
+        <div class="chart-container">
+          <canvas id="engagementChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Category Performance -->
+      <div class="dashboard-card">
+        <h2>Categories</h2>
+        <div class="chart-container">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Performing Posts -->
+      <div class="dashboard-card wide-card">
+        <h2>Top Performing Posts</h2>
+        <table class="performance-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Likes</th>
+              <th>Comments</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% topPosts.forEach(post => { %>
+              <tr>
+                <td><a href="/posts/<%= post.id %>"><%= post.title %></a></td>
+                <td><%= new Date(post.created_at).toLocaleDateString() %></td>
+                <td><span class="category-badge"><%= post.category %></span></td>
+                <td><%= post.likes %></td>
+                <td><%= post.comment_count %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Audience Insights -->
+      <div class="dashboard-card wide-card">
+        <h2>Audience Engagement</h2>
+        <div class="chart-container">
+          <canvas id="audienceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout confirmation -->
+  <div class="overlay" id="overlay"></div>
+  <div class="custom-alert" id="logoutAlert" style="display: none;">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to logout from Word Weave?</p>
+    <div class="alert-buttons">
+      <button class="cancel-btn" id="cancelLogout">Cancel</button>
+      <button class="confirm-btn" id="confirmLogout">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get chart data from data attributes
+      const chartDataElement = document.getElementById('chartData');
+      const activityData = JSON.parse(chartDataElement.getAttribute('data-activity'));
+      const engagementData = JSON.parse(chartDataElement.getAttribute('data-engagement'));
+      const categoryData = JSON.parse(chartDataElement.getAttribute('data-categories'));
+      const audienceData = JSON.parse(chartDataElement.getAttribute('data-audience'));
+
+      // Activity Chart
+      const activityCtx = document.getElementById('activityChart').getContext('2d');
+      new Chart(activityCtx, {
+        type: 'line',
+        data: {
+          labels: activityData.labels,
+          datasets: [{
+            label: 'Posts',
+            data: activityData.values,
+            borderColor: '#ffd700',
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: '#ffffff'
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#ffffff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#ffffff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          }
+        }
+      });
+
+      // Engagement Chart
+      const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+      new Chart(engagementCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Likes', 'Comments', 'No Engagement'],
+          datasets: [{
+            data: [engagementData.likes, engagementData.comments, engagementData.none],
+            backgroundColor: ['#ffd700', '#4385ff', '#333333'],
+            borderColor: 'rgba(0, 0, 0, 0.1)',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#ffffff'
+              }
+            },
+            tooltip: {
+              enabled: false // Disable tooltips completely
+            }
+          }
+        }
+      });
+
+      // Category Chart
+      const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+      new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+          labels: categoryData.labels,
+          datasets: [{
+            label: 'Posts by Category',
+            data: categoryData.values,
+            backgroundColor: 'rgba(255, 215, 0, 0.6)',
+            borderColor: '#ffd700',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                color: '#ffffff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            y: {
+              ticks: {
+                color: '#ffffff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+
+      // Audience Chart
+      const audienceCtx = document.getElementById('audienceChart').getContext('2d');
+      new Chart(audienceCtx, {
+        type: 'line',
+        data: {
+          labels: audienceData.labels,
+          datasets: [{
+            label: 'Likes',
+            data: audienceData.likes,
+            borderColor: '#ffd700',
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            tension: 0.4,
+            fill: false
+          }, {
+            label: 'Comments',
+            data: audienceData.comments,
+            borderColor: '#4385ff',
+            backgroundColor: 'rgba(67, 133, 255, 0.1)',
+            tension: 0.4,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: '#ffffff'
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#ffffff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#ffffff'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          }
+        }
+      });
+
+      // Logout functionality
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('logoutAlert').style.display = 'block';
+      });
+
+      document.getElementById('cancelLogout').addEventListener('click', function() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('logoutAlert').style.display = 'none';
+      });
+
+      document.getElementById('confirmLogout').addEventListener('click', function() {
+        window.location.href = '/logout';
+      });
+
+      document.getElementById('overlay').addEventListener('click', function() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('logoutAlert').style.display = 'none';
+      });
+    });
+  </script>
+</body>
+
+</html>
