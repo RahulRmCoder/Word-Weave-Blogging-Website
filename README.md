@@ -2,7 +2,7 @@
 
 Word Weave is a modern blogging platform designed to provide a seamless writing experience with powerful analytics tools for content creators. The platform features a clean, dark-themed interface, intuitive post creation, social engagement features, and a comprehensive dashboard to track content performance.
 
-![Word Weave Logo](screenshots/logo.png)
+![Word Weave Logo](screenshots/logo1.png)
 
 ## Features
 
