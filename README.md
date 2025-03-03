@@ -34,19 +34,19 @@ Word Weave is a modern blogging platform designed to provide a seamless writing 
 ## Screenshots
 
 ### Home Page
-![Home Page](screenshots/home.png)
+![Home Page](screenshots/1.png)
 
 ### Post Creation
-![Post Creation](screenshots/create-post.png)
+![Post Creation](screenshots/3.png)
 
 ### Post with Comments
-![Post with Comments](screenshots/post-comments.png)
+![Post with Comments](screenshots/2.png)
 
 ### User Profile Dashboard
-![Profile Dashboard](screenshots/profile-dashboard.png)
+![Profile Dashboard](screenshots/4.png)
 
 ### Analytics Charts
-![Analytics Charts](screenshots/analytics.png)
+![Analytics Charts](screenshots/5.png)
 
 ## Tech Stack
 
